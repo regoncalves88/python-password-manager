@@ -2,6 +2,7 @@ from tkinter import *
 from tkinter import messagebox
 from random import choice, randint, shuffle
 import pyperclip
+import json
 
 # --- PASSWORD GENERATOR --- #
 letters = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u',
@@ -30,20 +31,35 @@ def save_password():
     username = username_entry.get()
     password = password_entry.get()
 
+    new_data = {
+        website: {
+            "username": username,
+            "password": password,
+        },
+    }
+
     if len(website) == 0 or len(username) == 0 or len(password) == 0:
         messagebox.showerror(title="Error", message="Please fill in all the required fields.")
-
     else:
         save = messagebox.askokcancel(title=website, message=f"You entered...\n\nWebsite: {website}\n"
                                                              f"Username: {username}\nPassword: "
                                                              f"{password}\n\nDo you want to save?")
-        if save:
-            with open("data.txt", "a") as password_data:
-                password_data.write(f"{website} | {username} | {password}\n")
 
-            website_entry.delete(0, END)
-            username_entry.delete(0, END)
-            password_entry.delete(0, END)
+        if save:
+            try:
+                with open("data.json", "r") as password_data:
+                    data = json.load(password_data)
+            except FileNotFoundError:
+                with open("data.json", "w") as password_data:
+                    json.dump(new_data, password_data, indent=4)
+            else:
+                with open("data.json", "w") as password_data:
+                    data.update(new_data)
+                    json.dump(data, password_data, indent=4)
+            finally:
+                website_entry.delete(0, END)
+                username_entry.delete(0, END)
+                password_entry.delete(0, END)
 
 
 # --- UI SETUP --- #
