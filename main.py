@@ -62,6 +62,29 @@ def save_password():
                 password_entry.delete(0, END)
 
 
+# --- SAVE PASSWORD --- #
+def search_password():
+    website = website_entry.get()
+
+    if len(website) == 0:
+        messagebox.showerror(title="Error", message="Please fill in the Website field.")
+    else:
+        try:
+            with open("data.json", "r") as password_data:
+                data = json.load(password_data)
+
+                if website in data.keys():
+                    username = data[website]["username"]
+                    password = data[website]["password"]
+                    messagebox.showinfo(title=website, message=f"Website: {website}\nUsername: {username}\n"
+                                                               f"Password: {password}")
+                    pyperclip.copy(password)
+                else:
+                    messagebox.showerror(title="Error", message=f'The website "{website}" is not yet registered.')
+        except FileNotFoundError:
+            messagebox.showerror(title="Error", message="No websites yet registered.")
+
+
 # --- UI SETUP --- #
 # Window
 window = Tk()
@@ -79,8 +102,11 @@ canvas.grid(column=1, row=0)
 add_button = Button(text="Add", width=37, command=save_password)
 add_button.grid(column=1, row=4, columnspan=2)
 
-generate_button = Button(text="Generate Password", command=generate_password)
+generate_button = Button(text="Generate Password", width=14, command=generate_password)
 generate_button.grid(column=2, row=3)
+
+search_button = Button(text="Search", width=14, command=search_password)
+search_button.grid(column=2, row=1)
 
 # Entries
 password_entry = Entry(width=22, justify="center", fg="gray")
@@ -89,9 +115,9 @@ password_entry.grid(column=1, row=3)
 username_entry = Entry(width=36, justify="center", fg="gray")
 username_entry.grid(column=1, row=2, columnspan=2)
 
-website_entry = Entry(width=36, justify="center", fg="gray")
+website_entry = Entry(width=22, justify="center", fg="gray")
 website_entry.focus()
-website_entry.grid(column=1, row=1, columnspan=2)
+website_entry.grid(column=1, row=1)
 
 # Labels
 password_label = Label(text="Password")
